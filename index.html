@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KyoniWorks — Live2D Rigging Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #080E1C;
+    --navy2: #0D1729;
+    --navy3: #111f35;
+    --teal: #00C4CC;
+    --teal2: #5DCAA5;
+    --teal-dim: rgba(0,196,204,0.12);
+    --teal-glow: rgba(0,196,204,0.35);
+    --red: #E63946;
+    --red-dim: rgba(230,57,70,0.12);
+    --white: #E0F9FB;
+    --white2: #a8cdd4;
+    --font-display: 'Rajdhani', sans-serif;
+    --font-body: 'Outfit', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* GRID TEXTURE */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,196,204,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,196,204,0.05) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAVBAR */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 48px;
+    height: 64px;
+    background: rgba(8,14,28,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0,196,204,0.2);
+  }
+
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: var(--teal);
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--white2);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--teal); }
+
+  /* SECTIONS */
+  section { position: relative; z-index: 1; }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 700;
+    letter-spacing: 2px;
+    line-height: 1.1;
+    color: var(--white);
+    text-transform: uppercase;
+  }
+
+  /* DECORATIVE */
+  .diamond {
+    display: inline-block;
+    width: 12px; height: 12px;
+    background: var(--teal);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+  .diamond.sm { width: 7px; height: 7px; opacity: 0.5; }
+  .diamond.outline { background: transparent; border: 2px solid var(--teal); opacity: 0.4; }
+  .diamond.red { background: var(--red); }
+
+  .sparkle {
+    position: absolute;
+    color: var(--teal);
+    font-size: 16px;
+    opacity: 0.6;
+    pointer-events: none;
+    animation: twinkle 3s ease-in-out infinite;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 0.8; transform: scale(1.1); }
+  }
+
+  /* ============ HERO ============ */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 100px 48px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg-accent {
+    position: absolute;
+    top: -100px; right: -100px;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,196,204,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-content { max-width: 680px; }
+
+  .hero-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .hero-eyebrow span {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--teal2);
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(56px, 9vw, 110px);
+    font-weight: 700;
+    letter-spacing: 6px;
+    line-height: 0.95;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+
+  .hero-title .teal { color: var(--teal); text-shadow: 0 0 40px var(--teal-glow); }
+
+  .hero-subtitle {
+    font-family: var(--font-display);
+    font-size: clamp(18px, 2.5vw, 26px);
+    font-weight: 400;
+    letter-spacing: 3px;
+    color: var(--white2);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .hero-subtitle-pt {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--teal2);
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+  }
+
+  .hero-btns { display: flex; gap: 16px; flex-wrap: wrap; }
+
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 14px 32px;
+    border-radius: 2px;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-primary {
+    background: var(--teal);
+    color: var(--navy);
+    font-weight: 700;
+  }
+  .btn-primary:hover { background: var(--teal2); box-shadow: 0 0 24px var(--teal-glow); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--teal);
+    border: 1px solid var(--teal);
+  }
+  .btn-outline:hover { background: var(--teal-dim); box-shadow: 0 0 16px var(--teal-glow); }
+
+  /* corner decorations hero */
+  .hero-corner {
+    position: absolute;
+    bottom: 48px; right: 48px;
+    display: flex; flex-direction: column; gap: 8px; align-items: flex-end;
+  }
+
+  .hero-corner-line {
+    height: 1px;
+    background: linear-gradient(to left, var(--teal), transparent);
+  }
+
+  /* ============ ABOUT ============ */
+  #about {
+    padding: 100px 48px;
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: start;
+    margin-top: 48px;
+  }
+
+  .about-text p {
+    color: var(--white2);
+    font-size: 16px;
+    line-height: 1.8;
+    margin-bottom: 16px;
+  }
+
+  .about-text p strong { color: var(--teal); font-weight: 500; }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .service-card {
+    background: var(--navy2);
+    border: 1px solid rgba(0,196,204,0.2);
+    border-radius: 4px;
+    padding: 20px;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .service-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--teal);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .service-card:hover {
+    border-color: var(--teal);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,196,204,0.15);
+  }
+
+  .service-card:hover::before { opacity: 1; }
+
+  .service-icon {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .service-name {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+
+  .service-desc {
+    font-size: 12px;
+    color: var(--white2);
+    line-height: 1.5;
+  }
+
+  /* ============ PORTFOLIO ============ */
+  #work {
+    padding: 100px 48px;
+    background: var(--navy2);
+  }
+
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 48px;
+  }
+
+  .portfolio-card {
+    background: var(--navy);
+    border: 1px solid rgba(0,196,204,0.15);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: all 0.25s;
+    cursor: pointer;
+  }
+
+  .portfolio-card:hover {
+    border-color: var(--teal);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,196,204,0.2);
+  }
+
+  .portfolio-img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: var(--navy3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .portfolio-img-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.3;
+  }
+
+  .portfolio-img-inner svg { width: 32px; height: 32px; fill: var(--teal); }
+
+  .portfolio-img-inner span {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--teal);
+  }
+
+  .portfolio-info {
+    padding: 16px 20px;
+  }
+
+  .portfolio-tag {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--teal);
+    background: var(--teal-dim);
+    border: 1px solid rgba(0,196,204,0.3);
+    border-radius: 2px;
+    padding: 3px 8px;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+
+  .portfolio-tag.red {
+    color: var(--red);
+    background: var(--red-dim);
+    border-color: rgba(230,57,70,0.3);
+  }
+
+  .portfolio-name {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+
+  .portfolio-desc {
+    font-size: 12px;
+    color: var(--white2);
+  }
+
+  /* ============ PRICING ============ */
+  #pricing {
+    padding: 100px 48px;
+  }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 48px;
+    align-items: start;
+  }
+
+  .pricing-card {
+    background: var(--navy2);
+    border: 1px solid rgba(0,196,204,0.15);
+    border-radius: 4px;
+    padding: 32px 28px;
+    position: relative;
+    transition: all 0.25s;
+  }
+
+  .pricing-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,196,204,0.15);
+  }
+
+  .pricing-card.featured {
+    border-color: var(--teal);
+    background: linear-gradient(160deg, rgba(0,196,204,0.08), var(--navy2));
+    box-shadow: 0 0 40px rgba(0,196,204,0.12);
+  }
+
+  .pricing-badge {
+    position: absolute;
+    top: -12px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--teal);
+    color: var(--navy);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .pricing-tier {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--teal2);
+    margin-bottom: 16px;
+  }
+
+  .pricing-price {
+    font-family: var(--font-display);
+    font-size: 52px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .pricing-price span {
+    font-size: 22px;
+    color: var(--teal);
+    vertical-align: top;
+    margin-top: 8px;
+    display: inline-block;
+  }
+
+  .pricing-from {
+    font-size: 12px;
+    color: var(--white2);
+    margin-bottom: 24px;
+  }
+
+  .pricing-divider {
+    height: 1px;
+    background: rgba(0,196,204,0.2);
+    margin-bottom: 24px;
+  }
+
+  .pricing-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .pricing-features li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--white2);
+  }
+
+  .check {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--teal-dim);
+    border: 1px solid var(--teal);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 9px;
+    color: var(--teal);
+  }
+
+  /* ============ TESTIMONIALS ============ */
+  #testimonials {
+    padding: 100px 48px;
+    background: var(--navy2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 48px;
+  }
+
+  .testimonial-card {
+    background: var(--navy);
+    border: 1px solid rgba(0,196,204,0.12);
+    border-left: 3px solid var(--teal);
+    border-radius: 4px;
+    padding: 28px 24px;
+    position: relative;
+    transition: all 0.25s;
+  }
+
+  .testimonial-card:hover {
+    border-color: var(--teal);
+    border-left-color: var(--teal);
+    box-shadow: 0 8px 32px rgba(0,196,204,0.12);
+    transform: translateY(-2px);
+  }
+
+  .testimonial-quote-mark {
+    font-family: var(--font-display);
+    font-size: 64px;
+    line-height: 0.8;
+    color: var(--teal);
+    opacity: 0.2;
+    margin-bottom: 8px;
+  }
+
+  .testimonial-text {
+    font-size: 13px;
+    color: var(--white2);
+    line-height: 1.8;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .testimonial-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--teal-dim);
+    border: 1px solid var(--teal);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--teal);
+    flex-shrink: 0;
+  }
+
+  .testimonial-name {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--white);
+  }
+
+  .testimonial-handle {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--teal2);
+  }
+
+  /* ============ CONTACT ============ */
+  #contact {
+    padding: 100px 48px;
+    position: relative;
+  }
+
+  .contact-inner {
+    max-width: 640px;
+    margin: 48px auto 0;
+  }
+
+  .status-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 24px;
+    border-radius: 4px;
+    background: rgba(0,196,204,0.08);
+    border: 1px solid var(--teal);
+    margin-bottom: 40px;
+  }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--teal);
+    animation: pulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 var(--teal-glow); }
+    50% { box-shadow: 0 0 0 6px transparent; }
+  }
+
+  .status-text {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+  .form-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--teal2);
+  }
+
+  .form-input, .form-select, .form-textarea {
+    background: var(--navy2);
+    border: 1px solid rgba(0,196,204,0.2);
+    border-radius: 2px;
+    padding: 12px 16px;
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 2px var(--teal-dim);
+  }
+
+  .form-select {
+    appearance: none;
+    cursor: pointer;
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .form-input::placeholder, .form-textarea::placeholder { color: rgba(168,205,212,0.35); }
+
+  .socials {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 40px;
+  }
+
+  .social-link {
+    width: 40px; height: 40px;
+    border-radius: 2px;
+    border: 1px solid rgba(0,196,204,0.25);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--white2);
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+
+  .social-link:hover {
+    border-color: var(--teal);
+    color: var(--teal);
+    box-shadow: 0 0 16px var(--teal-glow);
+  }
+
+  /* ============ FOOTER ============ */
+  footer {
+    padding: 40px 48px;
+    border-top: 1px solid rgba(0,196,204,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-logo {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: var(--teal);
+    text-transform: uppercase;
+  }
+
+  .footer-copy {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--white2);
+    opacity: 0.4;
+  }
+
+  .footer-diamonds { display: flex; gap: 8px; align-items: center; }
+
+  /* SECTION DIVIDER */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, rgba(0,196,204,0.3), transparent);
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-up { animation: fadeUp 0.7s ease both; }
+  .delay-1 { animation-delay: 0.1s; }
+  .delay-2 { animation-delay: 0.2s; }
+  .delay-3 { animation-delay: 0.35s; }
+  .delay-4 { animation-delay: 0.5s; }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 0 20px; }
+    .nav-links { gap: 20px; }
+    #hero, #about, #work, #pricing, #testimonials, #contact { padding: 80px 20px; }
+    .about-grid, .portfolio-grid, .pricing-grid, .testimonials-grid { grid-template-columns: 1fr; }
+    .services-grid { grid-template-columns: 1fr 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 16px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="#hero" class="nav-logo">KyoniWorks</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#testimonials">Reviews</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg-accent"></div>
+  <span class="sparkle" style="top:120px;right:200px;animation-delay:0s;">✦</span>
+  <span class="sparkle" style="top:200px;right:380px;animation-delay:0.8s;font-size:10px;">✦</span>
+  <span class="sparkle" style="bottom:160px;right:140px;animation-delay:1.5s;">✦</span>
+  <span class="sparkle" style="top:160px;left:600px;animation-delay:0.4s;font-size:10px;">✦</span>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow fade-up">
+      <div class="diamond sm"></div>
+      <span>Live2D Rigging Studio</span>
+      <div class="diamond sm"></div>
+    </div>
+    <h1 class="hero-title fade-up delay-1">
+      KYONI<span class="teal">WORKS</span>
+    </h1>
+    <p class="hero-subtitle fade-up delay-2">Bringing your VTuber model to life</p>
+    <p class="hero-subtitle-pt fade-up delay-2">// Dando vida ao seu modelo VTuber</p>
+    <div class="hero-btns fade-up delay-3">
+      <a href="#contact" class="btn btn-primary">Commission Now</a>
+      <a href="#work" class="btn btn-outline">See My Work</a>
+    </div>
+  </div>
+
+  <div class="hero-corner">
+    <div class="hero-corner-line" style="width:80px;"></div>
+    <div style="display:flex;gap:6px;">
+      <div class="diamond sm"></div>
+      <div class="diamond sm outline"></div>
+      <div class="diamond sm"></div>
+    </div>
+    <div class="hero-corner-line" style="width:48px;"></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <p class="section-label">// About & Services / Sobre</p>
+  <h2 class="section-title">The Studio</h2>
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="diamond sm"></div>
+  </div>
+
+  <div class="about-grid">
+    <div class="about-text">
+      <p>
+        <strong>KyoniWorks</strong> is a Live2D rigging studio dedicated to bringing VTuber models to life with fluid movement, expressive physics, and polished toggles.
+      </p>
+      <p>
+        Every rig is built with care — from <strong>jiggle physics</strong> and <strong>fluffy ear sways</strong> to complex <strong>expression toggles</strong> that make your model feel truly alive on stream.
+      </p>
+      <p style="font-family:var(--font-mono);font-size:12px;color:var(--teal2);letter-spacing:1px;">
+        // KyoniWorks é um estúdio especializado em rigging Live2D para modelos VTuber, com foco em física realista, toggles criativos e expressões únicas.
+      </p>
+    </div>
+
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon">⚙️</div>
+        <div class="service-name">Rigging</div>
+        <div class="service-desc">Full model rigging from scratch</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🌊</div>
+        <div class="service-name">Physics</div>
+        <div class="service-desc">Hair, ears, clothing physics</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">✨</div>
+        <div class="service-name">Toggles</div>
+        <div class="service-desc">Custom toggle setup & items</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">😊</div>
+        <div class="service-name">Expressions</div>
+        <div class="service-desc">Emotes, faces & animations</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="work">
+  <p class="section-label">// Portfolio / Portfólio</p>
+  <h2 class="section-title">My Work</h2>
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="diamond sm"></div>
+  </div>
+
+  <div class="portfolio-grid">
+    <!-- Card 1 -->
+    <div class="portfolio-card">
+      <div class="portfolio-img">
+        <div class="portfolio-img-inner">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          <span>Project Preview</span>
+        </div>
+      </div>
+      <div class="portfolio-info">
+        <span class="portfolio-tag">Full Rig</span>
+        <div class="portfolio-name">Project Alpha</div>
+        <div class="portfolio-desc">Full rigging with physics & expressions</div>
+      </div>
+    </div>
+    <!-- Card 2 -->
+    <div class="portfolio-card">
+      <div class="portfolio-img">
+        <div class="portfolio-img-inner">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          <span>Project Preview</span>
+        </div>
+      </div>
+      <div class="portfolio-info">
+        <span class="portfolio-tag red">Physics</span>
+        <div class="portfolio-name">Project Beta</div>
+        <div class="portfolio-desc">Advanced hair & clothing physics</div>
+      </div>
+    </div>
+    <!-- Card 3 -->
+    <div class="portfolio-card">
+      <div class="portfolio-img">
+        <div class="portfolio-img-inner">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          <span>Project Preview</span>
+        </div>
+      </div>
+      <div class="portfolio-info">
+        <span class="portfolio-tag">Expressions</span>
+        <div class="portfolio-name">Project Gamma</div>
+        <div class="portfolio-desc">Custom emotes & expressions pack</div>
+      </div>
+    </div>
+    <!-- Card 4 -->
+    <div class="portfolio-card">
+      <div class="portfolio-img">
+        <div class="portfolio-img-inner">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          <span>Project Preview</span>
+        </div>
+      </div>
+      <div class="portfolio-info">
+        <span class="portfolio-tag">Full Rig</span>
+        <div class="portfolio-name">Project Delta</div>
+        <div class="portfolio-desc">Full rig with toggle system</div>
+      </div>
+    </div>
+    <!-- Card 5 -->
+    <div class="portfolio-card">
+      <div class="portfolio-img">
+        <div class="portfolio-img-inner">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          <span>Project Preview</span>
+        </div>
+      </div>
+      <div class="portfolio-info">
+        <span class="portfolio-tag red">Physics</span>
+        <div class="portfolio-name">Project Epsilon</div>
+        <div class="portfolio-desc">Ear & tail physics specialist rig</div>
+      </div>
+    </div>
+    <!-- Card 6 -->
+    <div class="portfolio-card">
+      <div class="portfolio-img">
+        <div class="portfolio-img-inner">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          <span>Project Preview</span>
+        </div>
+      </div>
+      <div class="portfolio-info">
+        <span class="portfolio-tag">Toggles</span>
+        <div class="portfolio-name">Project Zeta</div>
+        <div class="portfolio-desc">Outfit & accessory toggle system</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <p class="section-label">// Pricing / Preços</p>
+  <h2 class="section-title">Tiers</h2>
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="diamond sm"></div>
+  </div>
+
+  <div class="pricing-grid">
+    <!-- Basic -->
+    <div class="pricing-card">
+      <div class="pricing-tier">Basic</div>
+      <div class="pricing-price"><span>$</span>80</div>
+      <div class="pricing-from">Starting price / A partir de</div>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li><div class="check">✓</div> Full body rigging</li>
+        <li><div class="check">✓</div> Basic physics setup</li>
+        <li><div class="check">✓</div> 3 expressions</li>
+        <li><div class="check">✓</div> 2 revisions</li>
+      </ul>
+      <a href="#contact" class="btn btn-outline" style="display:block;text-align:center;">Get Started</a>
+    </div>
+
+    <!-- Standard (featured) -->
+    <div class="pricing-card featured">
+      <div class="pricing-badge">Most Popular / Mais Popular</div>
+      <div class="pricing-tier">Standard</div>
+      <div class="pricing-price"><span>$</span>150</div>
+      <div class="pricing-from">Starting price / A partir de</div>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li><div class="check">✓</div> Full body rigging</li>
+        <li><div class="check">✓</div> Advanced physics</li>
+        <li><div class="check">✓</div> 6 expressions</li>
+        <li><div class="check">✓</div> Toggle system</li>
+        <li><div class="check">✓</div> 4 revisions</li>
+      </ul>
+      <a href="#contact" class="btn btn-primary" style="display:block;text-align:center;">Get Started</a>
+    </div>
+
+    <!-- Premium -->
+    <div class="pricing-card">
+      <div class="pricing-tier">Premium</div>
+      <div class="pricing-price"><span>$</span>250</div>
+      <div class="pricing-from">Starting price / A partir de</div>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li><div class="check">✓</div> Full body rigging</li>
+        <li><div class="check">✓</div> Premium physics</li>
+        <li><div class="check">✓</div> Unlimited expressions</li>
+        <li><div class="check">✓</div> Full toggle system</li>
+        <li><div class="check">✓</div> Outfit swaps</li>
+        <li><div class="check">✓</div> Unlimited revisions</li>
+      </ul>
+      <a href="#contact" class="btn btn-outline" style="display:block;text-align:center;">Get Started</a>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <span class="sparkle" style="top:40px;right:120px;animation-delay:0.3s;">✦</span>
+  <span class="sparkle" style="bottom:60px;left:80px;animation-delay:1.1s;font-size:10px;">✦</span>
+
+  <p class="section-label">// Kind Words / Depoimentos</p>
+  <h2 class="section-title">Clients Say</h2>
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="diamond sm"></div>
+  </div>
+
+  <div class="testimonials-grid">
+    <div class="testimonial-card">
+      <div class="testimonial-quote-mark">"</div>
+      <p class="testimonial-text">The physics on my model feel so natural — my hair actually bounces the way I imagined. KyoniWorks nailed every detail!</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">AK</div>
+        <div>
+          <div class="testimonial-name">AkiraVT</div>
+          <div class="testimonial-handle">@akiravtuber</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="testimonial-card">
+      <div class="testimonial-quote-mark">"</div>
+      <p class="testimonial-text">Super professional and communicative throughout the whole process. The toggle system is incredibly smooth. 10/10 would commission again!</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">MN</div>
+        <div>
+          <div class="testimonial-name">MoonNova</div>
+          <div class="testimonial-handle">@moonnovaVT</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="testimonial-card">
+      <div class="testimonial-quote-mark">"</div>
+      <p class="testimonial-text">My expressions finally feel alive! KyoniWorks brought so much personality to my model. The delivery was fast and the quality is incredible.</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">SR</div>
+        <div>
+          <div class="testimonial-name">StarRin</div>
+          <div class="testimonial-handle">@starrinlive</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <p class="section-label">// Contact / Contato</p>
+  <h2 class="section-title">Let's Work Together</h2>
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="diamond sm"></div>
+  </div>
+
+  <div class="contact-inner">
+    <div class="status-banner">
+      <div class="status-dot"></div>
+      <span class="status-text">Commissions Open / Comissões Abertas</span>
+    </div>
+
+    <form class="contact-form" onsubmit="return false;">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Name / Nome</label>
+          <input type="text" class="form-input" placeholder="Your name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" placeholder="your@email.com">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Project Type / Tipo de Projeto</label>
+        <select class="form-select">
+          <option value="" style="background:#0D1729;">Select a type...</option>
+          <option value="full" style="background:#0D1729;">Full Rig</option>
+          <option value="physics" style="background:#0D1729;">Physics Only</option>
+          <option value="expressions" style="background:#0D1729;">Expressions</option>
+          <option value="toggles" style="background:#0D1729;">Toggle System</option>
+          <option value="other" style="background:#0D1729;">Other / Outro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message / Mensagem</label>
+        <textarea class="form-textarea" placeholder="Tell me about your project / Fale sobre seu projeto..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" style="align-self:flex-start;">Send Message →</button>
+    </form>
+
+    <div class="socials">
+      <a href="#" class="social-link" title="Twitter/X">𝕏</a>
+      <a href="#" class="social-link" title="Twitch">▶</a>
+      <a href="#" class="social-link" title="Instagram">◈</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">KyoniWorks</div>
+  <div class="footer-diamonds">
+    <div class="diamond sm outline"></div>
+    <div class="diamond sm"></div>
+    <div class="diamond sm outline"></div>
+  </div>
+  <div class="footer-copy">© 2025 KyoniWorks. All rights reserved.</div>
+</footer>
+
+</body>
+</html>
